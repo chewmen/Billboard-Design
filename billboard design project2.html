@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <title>Image Signs</title>
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+  </head>
+
+  <style>
+    body {
+      text-align: center;
+      max-width: 1000px;
+      width: 80%;
+      margin: 20px auto;
+      background-color: #36454f;
+      /*Fallback if gradeints don't work */
+      /*Linear gradient... */
+      background:
+        radial-gradient(at center, #222b31, #2c3840);
+
+    }
+
+    table {
+      margin: 0px auto;
+      background-color: #212b31;
+
+      color: white;
+      font-weight: 900;
+      font-stretch: expanded;
+      font-family: "Tahoma";
+      border-collapse: collapse;
+    }
+
+    td {
+      border: 4px solid #090909;
+      font-size: 3vw;
+      font-family: "Tahoma";
+      font-stretch: expanded;
+      height: 6vw;
+      text-align: center;
+      transform: scale(1.2, 1.9);
+
+      width: 2vw;
+
+    }
+
+    tr {
+      border: 8px solid #090909;
+    }
+
+    table.center {
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    input {
+      color: white;
+      margin: 10px;
+    }
+
+    textarea {
+      color: white;
+    }
+
+    label {
+      color: #1167b1;
+    }
+
+    th,
+    td {
+      padding: 0;
+    }
+
+    @media print {
+      body {
+        background-color: #FFFFFF;
+        background: none;
+      }
+
+      #letterCount {
+        color: black !important;
+      }
+
+    }
+
+
+    @media (max-width:629px) {
+      img {
+        display: none;
+      }
+    }
+
+  </style>
+
+  <body>
+    <br />
+    <form id="sizePicker" class="col s12">
+      <div class="row">
+        <div class="input-field col s2">
+          <label for="numOfRows" style="font-size: 14px; color: gray;">Number of Rows</label>
+          <input value="4" type="number" oninput="drawTable()" id="numOfRows" name="inputRows" class="validate" min="1" max="8" />
+          <span class="helper-text" data-error="Must be between 1 and 8"></span>
+        </div>
+        <div class="input-field col s2">
+          <label for="maxNumOfCellsPerRow" style="color: gray;">Characters Across</label>
+          <input value="18" type="number" oninput="drawTable()" id="maxNumOfCellsPerRow" name="inputRows" class="validate" min="12" max="25" />
+          <span class="helper-text" data-error="Must be between 12 and 25"></span>
+        </div>
+        <div class="switch col s2">
+        <label for="sides" style="color: gray;">Number of Sides</label><p/>
+        <p/>
+          <label style="color: gray;">
+            1
+            <input type="checkbox" id="sides" oninput="drawTable()">
+            <span class="lever"></span>
+            2
+          </label>
+        </div>
+        <div class="col s6">
+          <img src="https://static1.squarespace.com/static/58b0e8ae6b8f5b2e7cb3d61f/t/604bc3544d491531a7c0e55f/1617216710179/?format=1500w" width=300px align="right" style="border: 5px ridge #555;">
+        </div>
+      </div>
+      <div class="row">
+        <div class="row">
+          <div class="input-field col s12">
+            <textArea oninput="drawTable()" id="messageToDisplay" class="materialize-textarea" data-length="100" maxlength="100"></textarea>
+            <label for="messageToDisplay">Your Message</label>
+            <span class="helper-text" style="color: gray;">You may also press enter or use hyphens to move text to the next line. </span>
+          </div>
+        </div>
+      </div>
+    </form>
+    <div style="margin: 0px; width: 100%; border: 15px solid black; padding: 0px; border-radius:3px;">
+      <table id="content" class="center" style="table-layout:fixed;"></table>
+    </div>
+
+    <p />
+    <div id="letterCount" style="color:white; font-size:25px; margin: 0 auto; column-width: 3em;">
+
+    </div>
+    <p />
+    <button onclick="window.print()" class="waves-effect waves-light btn">Print This Page</button>
+
+  </body>
+
+
+
+  <script>
+    /* returns the size/length of an object */
+
+
+    // global variable
+    var letters = {};
+
+    // get table and draw it!
+    const contentTable = document.getElementById("content");
+    var SIDES = document.getElementById("sides").checked;
+
+    drawTable();
+
+    function drawTable() {
+      //initial vars for counting characters
+
+      letters = {};
+
+      // get all variables
+      contentTable.innerHTML = "";
+      const NUM_ROWS = document.getElementById('numOfRows').value;
+      const MAX_NUMBER_OF_CELLS_PER_ROW = document.getElementById('maxNumOfCellsPerRow').value;
+      const MESSAGE = document.getElementById("messageToDisplay").value;
+      SIDES = document.getElementById("sides").checked;
+
+      //change the max-length and data-length
+      $('#messageToDisplay')[0].setAttribute("data-length", NUM_ROWS * MAX_NUMBER_OF_CELLS_PER_ROW);
+      $('#messageToDisplay')[0].setAttribute("maxlength", NUM_ROWS * MAX_NUMBER_OF_CELLS_PER_ROW);
+
+      // create RegEx Wrap Function
+      function wordwrap(str, width) {
+        return str.replace(new RegExp('(?:(?:.{0,' + (width - 2) + '}\\S)?(?:\\s|-|$)|(?:\\S{' + width + '}))', 'gm'), function(s) {
+          return s + '\n';
+        }).slice(0, -1);
+
+      }
+
+      let messageAsArray = wordwrap(MESSAGE, MAX_NUMBER_OF_CELLS_PER_ROW).replace(/\n\s{0,}\n/g, "\n").split("\n").slice(0, -1);
+      let leading = Math.floor((NUM_ROWS - messageAsArray.length) / 2);
+      let ending = Math.ceil((NUM_ROWS - messageAsArray.length) / 2);
+      for (let i = 0; i < leading && leading > 0; i++) {
+        messageAsArray.unshift("");
+      }
+      for (let i = 0; i < ending && ending > 0; i++) {
+        messageAsArray.push("");
+      }
+
+      if (messageAsArray.length > NUM_ROWS) {
+        messageAsArray = messageAsArray.slice(0, NUM_ROWS);
+        console.log(messageAsArray);
+      }
+
+      messageAsArray.forEach(line => {
+        let currentRow = _createRow(MAX_NUMBER_OF_CELLS_PER_ROW, line.trim());
+        contentTable.appendChild(currentRow);
+      });
+
+      // get the Character Counts:
+      _getCharCounts();
+
+
+
+    }
+
+    function _createRow(numberOfCells, lineText) {
+
+      const row = document.createElement("tr");
+      // center the row
+      let numOfLeftSpaces = Math.floor((numberOfCells - lineText.length) / 2); // finds the number of spaces that should be added to the beginning
+      // add leading and ending spaces
+      lineText = ' '.repeat(numOfLeftSpaces) + lineText + ' '.repeat(numberOfCells - lineText.length - numOfLeftSpaces);
+      lineText = lineText.toUpperCase();
+      for (let i = 0; i < numberOfCells; i++) {
+        const cell = document.createElement("td");
+        const cellText = document.createTextNode(lineText[i].toUpperCase());
+
+        // add the letters to the total string
+        letters[lineText[i]] = isNaN(letters[lineText[i]]) ? 1 : letters[lineText[i]] + 1;
+
+        //add the cell
+        cell.appendChild(cellText);
+        row.appendChild(cell);
+      }
+
+      return row; //send back the row
+    }
+
+
+
+    function _getCharCounts() {
+      //loop, figure it out
+      $("#letterCount")[0].innerHTML = "";
+			
+      Object.keys(letters)
+        .sort()
+        .forEach(function(v, i) {
+
+          $("#letterCount")[0].innerHTML += (v === " " ? "SPACE" : v.toUpperCase()) + ": " + letters[v]*(SIDES?2:1) + "<br/>";
+        });
+
+    }
+
+  </script>
+
+
+
+
+</html>
